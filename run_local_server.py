@@ -148,7 +148,18 @@ class TrivynaLocalHandler(http.server.SimpleHTTPRequestHandler):
             
             api_key = raw_data.get("api_key", "")
             if not api_key:
-                # Mock fallback if user doesn't enter an API Key
+                # Try to load from local_config.json if exists
+                config_path = os.path.join(DIRECTORY, "local_config.json")
+                if os.path.exists(config_path):
+                    try:
+                        with open(config_path, "r", encoding="utf-8") as f:
+                            cfg = json.load(f)
+                            api_key = cfg.get("GEMINI_API_KEY", "")
+                    except Exception:
+                        pass
+                        
+            if not api_key:
+                # Mock fallback if user doesn't enter an API Key and config is not found
                 mock_ai_resp = {
                     "candidates": [{
                         "content": {

@@ -4,6 +4,9 @@ trivyna_health.db
 # Local Mock History Data
 mock_history.json
 
+# Local API Configuration
+local_config.json
+
 # Log Files
 *.log
 .system_generated/
