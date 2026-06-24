@@ -1,0 +1,10 @@
+# Local SQLite Database
+trivyna_health.db
+
+# Local Mock History Data
+mock_history.json
+
+# Log Files
+*.log
+.system_generated/
+ftp_log*.txt

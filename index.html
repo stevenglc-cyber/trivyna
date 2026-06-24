@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRIVYNA - Tư vấn Sức khỏe & Dinh dưỡng AI</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Hệ thống phân tích chỉ số xét nghiệm, tính BMI và tư vấn chế độ ăn Eat Clean, tập luyện thể thao cá nhân hóa cùng Trợ lý AI của TRIVYNA.">
+    <!-- CSS File -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN for interactive graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="trivyna-container">
+    
+    <!-- Auth Status Banner (For testing / WP member notice) -->
+    <div id="auth-status-banner" class="auth-banner">
+        <span>Bạn đang sử dụng phiên bản Khách (Chưa đăng nhập). Kết quả sẽ không được lưu lại.</span>
+        <button id="btn-toggle-auth" class="auth-banner-btn">Đăng nhập tài khoản</button>
+    </div>
+
+    <!-- Header -->
+    <header class="brand-header">
+        <div class="brand-logo-container">
+            <img src="logo_icon.png" alt="Logo TRIVYNA" class="brand-logo-img">
+        </div>
+        <h1 class="brand-title">TRIVYNA</h1>
+        <div class="brand-tagline">Ăn sạch, sống khỏe, sống hạnh phúc</div>
+    </header>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+        
+        <!-- Left Side: Inputs -->
+        <div class="input-panel">
+            
+            <div class="card">
+                <!-- Navigation Tabs -->
+                <div class="tabs-header">
+                    <button class="tab-link active" onclick="switchTab(event, 'tab-indicators')">Chỉ Số Sức Khỏe</button>
+                    <button class="tab-link" onclick="switchTab(event, 'tab-vision')">AI Vision - Quét Bữa Ăn</button>
+                </div>
+
+                <!-- Tab 1: Health Indicators Form -->
+                <div id="tab-indicators" class="tab-content active">
+                    <form id="health-form" onsubmit="analyzeHealth(event)">
+                        
+                        <div class="section-subtitle">1. Thể trạng cơ bản</div>
+                        <div class="form-group">
+                            <label class="form-label">Giới tính sinh học</label>
+                            <div class="gender-selector">
+                                <button type="button" id="gender-nam" class="gender-btn active" onclick="setGender('Nam')">Nam</button>
+                                <button type="button" id="gender-nu" class="gender-btn" onclick="setGender('Nữ')">Nữ</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label" for="input-height">Chiều cao (cm)</label>
+                                <input type="number" id="input-height" class="form-control" placeholder="Ví dụ: 170" required min="100" max="250">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="input-weight">Cân nặng (kg)</label>
+                                <input type="number" id="input-weight" class="form-control" placeholder="Ví dụ: 65" required min="30" max="200">
+                            </div>
+                        </div>
+
+                        <div class="section-subtitle">2. Chỉ số xét nghiệm</div>
+                        
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label" for="input-systolic">Huyết áp Tâm thu (mmHg)</label>
+                                <input type="number" id="input-systolic" class="form-control" placeholder="Huyết áp trên (ví dụ: 120)">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="input-diastolic">Huyết áp Tâm trương (mmHg)</label>
+                                <input type="number" id="input-diastolic" class="form-control" placeholder="Huyết áp dưới (ví dụ: 80)">
+                            </div>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label" for="input-glucose">Đường huyết (mmol/L)</label>
+                                <input type="number" id="input-glucose" step="0.1" class="form-control" placeholder="Mức đường lúc đói">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="input-uric">Acid Uric (µmol/L)</label>
+                                <input type="number" id="input-uric" class="form-control" placeholder="Nam < 420, Nữ < 360">
+                            </div>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label" for="input-cholesterol">Cholesterol (mmol/L)</label>
+                                <input type="number" id="input-cholesterol" step="0.1" class="form-control" placeholder="Bình thường < 5.2">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="input-triglycerides">Triglycerides (mmol/L)</label>
+                                <input type="number" id="input-triglycerides" step="0.1" class="form-control" placeholder="Bình thường < 1.7">
+                            </div>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label" for="input-ast">Men gan AST (U/L)</label>
+                                <input type="number" id="input-ast" class="form-control" placeholder="Bình thường < 40">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="input-alt">Men gan ALT (U/L)</label>
+                                <input type="number" id="input-alt" class="form-control" placeholder="Bình thường < 40">
+                            </div>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label" for="input-creatinine">Creatinine Thận (µmol/L)</label>
+                                <input type="number" id="input-creatinine" class="form-control" placeholder="Bình thường: 53 - 115">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="input-urea">Urea Thận (mmol/L)</label>
+                                <input type="number" id="input-urea" step="0.1" class="form-control" placeholder="Bình thường < 7.1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="input-api-key">Gemini API Key (Tùy chọn - Nếu muốn dùng Key riêng)</label>
+                            <input type="password" id="input-api-key" class="form-control" placeholder="Nhập API Key để kết nối AI">
+                        </div>
+
+                        <button type="submit" id="btn-submit-indicators" class="btn-primary">Phân Tích & Gợi Ý Lối Sống</button>
+                    </form>
+                </div>
+
+                <!-- Tab 2: AI Vision Meal Scanner -->
+                <div id="tab-vision" class="tab-content">
+                    <div class="section-subtitle">Chụp ảnh phân tích calo</div>
+                    
+                    <div class="vision-scanner-container" onclick="triggerImageUpload()">
+                        <div class="vision-scanner-icon">📸</div>
+                        <p><strong>Bấm vào đây để Chụp ảnh hoặc Tải ảnh lên</strong></p>
+                        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 5px;">Máy ảnh điện thoại / File ảnh JPEG, PNG</p>
+                        <input type="file" id="image-upload" accept="image/*" capture="camera" style="display:none;" onchange="handleImageSelected(event)">
+                        <img id="image-preview" src="#" alt="Xem trước đĩa ăn" class="preview-image">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label" for="vision-api-key">Gemini API Key (Tùy chọn)</label>
+                        <input type="password" id="vision-api-key" class="form-control" placeholder="Nhập API Key để kết nối AI">
+                    </div>
+
+                    <button type="button" id="btn-analyze-meal" class="btn-primary" onclick="analyzeMeal()" style="margin-top: 20px;" disabled>
+                        Bắt Đầu Phân Tích Bữa Ăn
+                    </button>
+                </div>
+
+            </div>
+            
+        </div>
+
+        <!-- Right Side: Results -->
+        <div class="result-panel">
+            
+            <!-- Default Placeholder / Results Card -->
+            <div id="results-card" class="card" style="display: none;">
+                <h2 class="card-title">Kết Quả Đánh Giá</h2>
+                
+                <!-- BMI display -->
+                <div class="bmi-display">
+                    <div>
+                        <div style="font-size: 0.8rem; text-transform: uppercase; font-weight: 700; color: var(--color-text-muted);">Thể Trạng (BMI)</div>
+                        <div id="result-bmi-val" class="bmi-value">22.5</div>
+                    </div>
+                    <div id="result-bmi-status" class="bmi-status bmi-normal">Bình thường</div>
+                </div>
+
+                <!-- Diagnostic Alert Messages -->
+                <div id="diagnostic-alerts-container">
+                    <!-- Dynamic alerts will go here -->
+                </div>
+
+                <!-- History Chart Section (Only visible for logged in users) -->
+                <div id="history-chart-section" style="display: none;">
+                    <div class="section-subtitle">Đồ thị tiến trình sức khỏe</div>
+                    <div class="chart-container">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                    
+                    <div class="section-subtitle">Đánh giá tiến bộ từ AI</div>
+                    <div id="ai-progress-box" class="ai-output-box">
+                        Đang tải đánh giá tiến bộ sức khỏe...
+                    </div>
+                </div>
+
+                <!-- Diet Recommendation Card -->
+                <div class="section-subtitle">Thực đơn Eat Clean khuyến nghị</div>
+                <div id="ai-diet-box" class="ai-output-box">
+                    Đang thiết lập chế độ ăn uống cho bạn...
+                </div>
+
+                <!-- Workout Recommendation Card -->
+                <div class="section-subtitle">Chế độ tập luyện thể thao</div>
+                <div id="ai-workout-box" class="ai-output-box">
+                    Đang thiết lập chương trình tập luyện...
+                </div>
+
+                <!-- Chat interactive box -->
+                <div class="chat-container-box">
+                    <div class="section-subtitle">Hỏi đáp cùng Trợ lý Dinh dưỡng AI</div>
+                    <div id="chat-history" class="chat-history">
+                        <div class="chat-message ai">Xin chào! Bạn có câu hỏi nào về thực đơn hay chế độ tập luyện ở trên không? Cứ hỏi tôi nhé!</div>
+                    </div>
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="chat-input-text" class="chat-input" placeholder="Tôi có thể ăn khoai thay cơm lứt được không?">
+                        <button type="button" class="chat-btn-send" onclick="sendChatMessage()">Gửi</button>
+                    </div>
+                </div>
+
+                <!-- Call to action course suggestion -->
+                <div class="course-recommendation">
+                    <div class="course-text">
+                        <h4 id="course-title">Khóa Học Ăn Sạch & Khỏe</h4>
+                        <p id="course-description">Học cách tự chuẩn bị các món ăn ngon, lành mạnh cho gia đình bạn.</p>
+                    </div>
+                    <a href="https://trivyna.com/khoa-hoc" target="_blank" class="course-btn">Xem Chi Tiết</a>
+                </div>
+            </div>
+
+            <!-- Pre-Submit View: Prompt the user to fill form -->
+            <div id="placeholder-card" class="card" style="text-align: center; padding: 50px 30px;">
+                <div style="font-size: 4rem; margin-bottom: 20px; color: var(--color-green-light);">🌱</div>
+                <h2 class="card-title" style="justify-content: center; border-bottom: none; margin-bottom: 10px;">Bắt đầu phân tích sức khỏe</h2>
+                <p style="color: var(--color-text-muted); max-width: 500px; margin: 0 auto 30px;">
+                    Hãy điền các chỉ số thể trạng, xét nghiệm của bạn ở cột bên trái hoặc tải lên ảnh chụp đĩa thức ăn để AI tư vấn chế độ dinh dưỡng Eat Clean và bài tập cải thiện sức khỏe.
+                </p>
+            </div>
+            
+        </div>
+        
+    </div>
+
+</div>
+
+<!-- JS File -->
+<script src="app.js"></script>
+</body>
+</html>

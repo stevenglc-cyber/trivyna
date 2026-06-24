@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/trivyna-health.php",
+      "destination": "/api/trivyna-health"
+    }
+  ]
+}
